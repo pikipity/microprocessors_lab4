@@ -1,4 +1,4 @@
-A51 MACRO ASSEMBLER  LAB4                                                                 03/02/2013 02:46:02 PAGE     1
+A51 MACRO ASSEMBLER  LAB4                                                                 03/31/2013 10:31:59 PAGE     1
 
 
 MACRO ASSEMBLER A51 V8.00
@@ -65,7 +65,7 @@ LOC  OBJ            LINE     SOURCE
 0060 EB               55             MOV A,R3
 0061 03               56             RR A
 0062 03               57             RR A
-A51 MACRO ASSEMBLER  LAB4                                                                 03/02/2013 02:46:02 PAGE     2
+A51 MACRO ASSEMBLER  LAB4                                                                 03/31/2013 10:31:59 PAGE     2
 
 0063 03               58             RR A
 0064 03               59             RR A
@@ -133,7 +133,7 @@ LOC  OBJ            LINE     SOURCE
 00BA 93              121             MOVC A,@A+DPTR
 00BB F599            122             MOV SBUF,A
 00BD 3099FD          123             JNB TI,$
-A51 MACRO ASSEMBLER  LAB4                                                                 03/02/2013 02:46:02 PAGE     3
+A51 MACRO ASSEMBLER  LAB4                                                                 03/31/2013 10:31:59 PAGE     3
 
 00C0 C299            124             CLR TI
 00C2 B40D01          125             CJNE A,#0DH,number_warning_continue
@@ -165,11 +165,11 @@ LOC  OBJ            LINE     SOURCE
 00DD F599            150             MOV SBUF,A
 00DF 3099FD          151             JNB TI,$
 00E2 C299            152             CLR TI
-00E4 B40DDF          153             CJNE A,#0DH,number_warning_continue
+00E4 B40D01          153             CJNE A,#0DH,operator_warning_continue
 00E7 22              154             RET
 00E8                 155     operator_warning_continue:
 00E8 09              156             INC R1
-00E9 80CE            157             JMP number_warning_loop
+00E9 80F0            157             JMP operator_warning_loop
                      158     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                      159     
                      160     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -201,7 +201,7 @@ LOC  OBJ            LINE     SOURCE
 0112 759930          186             MOV SBUF,#30H
 0115 3099FD          187             JNB TI,$
 0118 C299            188             CLR TI
-A51 MACRO ASSEMBLER  LAB4                                                                 03/02/2013 02:46:02 PAGE     4
+A51 MACRO ASSEMBLER  LAB4                                                                 03/31/2013 10:31:59 PAGE     4
 
 011A 75F064          189             MOV B,#100
 011D 84              190             DIV AB
@@ -269,7 +269,7 @@ LOC  OBJ            LINE     SOURCE
 0187 84              252             DIV AB
 0188 9003D2          253             MOV DPTR,#display_number
 018B 93              254             MOVC A,@A+DPTR
-A51 MACRO ASSEMBLER  LAB4                                                                 03/02/2013 02:46:02 PAGE     5
+A51 MACRO ASSEMBLER  LAB4                                                                 03/31/2013 10:31:59 PAGE     5
 
 018C F599            255             MOV SBUF,A
 018E 3099FD          256             JNB TI,$
@@ -337,7 +337,7 @@ LOC  OBJ            LINE     SOURCE
 01FE 75F00A          318             MOV B,#10
 0201 E51D            319             MOV A,1DH
 0203 A4              320             MUL AB
-A51 MACRO ASSEMBLER  LAB4                                                                 03/02/2013 02:46:02 PAGE     6
+A51 MACRO ASSEMBLER  LAB4                                                                 03/31/2013 10:31:59 PAGE     6
 
 0204 251C            321             ADD A,1CH
 0206 F51A            322             MOV 1AH,A
@@ -405,7 +405,7 @@ LOC  OBJ            LINE     SOURCE
 0276 A4              384             MUL AB
 0277 251C            385             ADD A,1CH
 0279 F51A            386             MOV 1AH,A
-A51 MACRO ASSEMBLER  LAB4                                                                 03/02/2013 02:46:02 PAGE     7
+A51 MACRO ASSEMBLER  LAB4                                                                 03/31/2013 10:31:59 PAGE     7
 
 027B 7015            387             JNZ begin_calculate_division
 027D 9003DC          388             MOV DPTR,#display_infinity
@@ -473,7 +473,7 @@ LOC  OBJ            LINE     SOURCE
 02FB 3099FD          450             JNB TI,$
 02FE C299            451             CLR TI
 0300 75F00A          452             MOV B,#10
-A51 MACRO ASSEMBLER  LAB4                                                                 03/02/2013 02:46:02 PAGE     8
+A51 MACRO ASSEMBLER  LAB4                                                                 03/31/2013 10:31:59 PAGE     8
 
 0303 84              453             DIV AB
 0304 93              454             MOVC A,@A+DPTR
@@ -541,7 +541,7 @@ LOC  OBJ            LINE     SOURCE
                      516             ;most right bit of 68H set 1
 0356 D3              517             SETB C
 0357 E568            518             MOV A,68H
-A51 MACRO ASSEMBLER  LAB4                                                                 03/02/2013 02:46:02 PAGE     9
+A51 MACRO ASSEMBLER  LAB4                                                                 03/31/2013 10:31:59 PAGE     9
 
 0359 33              519             RLC A
 035A F568            520             MOV 68H,A
@@ -609,7 +609,7 @@ LOC  OBJ            LINE     SOURCE
                      573     
 03D2                 574     display_number:
 03D2 30313233        575             DB 30H,31H,32H,33H,34H,35H,36H,37H,38H,39H
-A51 MACRO ASSEMBLER  LAB4                                                                 03/02/2013 02:46:02 PAGE    10
+A51 MACRO ASSEMBLER  LAB4                                                                 03/31/2013 10:31:59 PAGE    10
 
 03D6 34353637                
 03DA 3839                    
@@ -620,7 +620,7 @@ LOC  OBJ            LINE     SOURCE
 03E4 0D                      
                      579     
                      580             END
-A51 MACRO ASSEMBLER  LAB4                                                                 03/02/2013 02:46:02 PAGE    11
+A51 MACRO ASSEMBLER  LAB4                                                                 03/31/2013 10:31:59 PAGE    11
 
 SYMBOL TABLE LISTING
 ------ ----- -------

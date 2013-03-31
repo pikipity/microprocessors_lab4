@@ -1,0 +1,519 @@
+A51 MACRO ASSEMBLER  LAB4_BASIS                                                           03/31/2013 09:52:36 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.00
+OBJECT MODULE PLACED IN lab4_basis.OBJ
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE lab4_basis.asm SET(SMALL) DEBUG EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1             ORG 00H
+0000 41AE              2             JMP MAIN
+                       3     
+0023                   4             ORG 23H
+0023 8000              5             JMP UART
+                       6     
+0025                   7     UART:
+0025 20995F            8             JB TI,L1
+0028 C298              9             CLR RI
+                      10             ;increase digit number
+002A 0A               11             INC R2
+                      12             ;display what you have typed
+002B E599             13             MOV A,SBUF
+002D F599             14             MOV SBUF,A
+                      15             ;store what you have typed in R3
+002F FB               16             MOV R3,A
+0030                  17     begin_determine_R2:
+0030 BA051E           18             CJNE R2,#5,determine_number  ;if R2 is not equal to 5, the user should type a numbe
+                             r
+                      19             ;if R2=5,clear R2 first
+0033 7A00             20             MOV R2,#0
+                      21             ;if R2=5, the user should type an operator.
+                      22             ;+:2BH  -:2DH  *:2AH  /:2FH
+0035                  23     determine_R3_equal_2BH:
+0035 BB2B04           24             CJNE R3,#2BH,determine_R3_equal_2DH
+0038 118A             25             CALL display_summation_result
+003A 804B             26             JMP L1
+003C                  27     determine_R3_equal_2DH:
+003C BB2D04           28             CJNE R3,#2DH,determine_R3_equal_2AH
+003F 11E9             29             CALL display_subtraction_result
+0041 8044             30             JMP L1
+0043                  31     determine_R3_equal_2AH:
+0043 BB2A04           32             CJNE R3,#2AH,determine_R3_equal_2FH
+0046 3186             33             CALL display_multiple_result
+0048 803D             34             JMP L1
+004A                  35     determine_R3_equal_2FH:
+004A BB2F3A           36             CJNE R3,#2FH,L1
+004D 31F9             37             CALL display_division_result
+004F 8036             38             JMP L1
+0051                  39     determine_number:
+                      40             ;determine if the character that the user has typed is a number.
+                      41             ;first determine if the high 4 bits     are 3H. if not, go back.
+                      42             ;if yes, determine if the character is smaller than 3AH. 
+                      43             ;if yes, saving number.
+                      44             ;if no, go back.
+0051 EB               45             MOV A,R3
+0052 03               46             RR A
+0053 03               47             RR A
+0054 03               48             RR A
+0055 03               49             RR A
+0056 540F             50             ANL A,#00001111B
+0058 B4032C           51             CJNE A,#3,L1
+005B C3               52             CLR C
+005C EB               53             MOV A,R3
+005D 7C3A             54             MOV R4,#3AH
+005F 9C               55             SUBB A,R4
+0060 5025             56             JNC L1
+                      57             ;saving number
+A51 MACRO ASSEMBLER  LAB4_BASIS                                                           03/31/2013 09:52:36 PAGE     2
+
+0062                  58     determine_R2_equal_1:
+0062 BA0107           59             CJNE R2,#1,determine_R2_equal_2
+0065 EB               60             MOV A,R3
+0066 540F             61             ANL A,#00001111B
+0068 F51F             62             MOV 1FH,A
+006A 801B             63             JMP L1
+006C                  64     determine_R2_equal_2:
+006C BA0207           65             CJNE R2,#2,determine_R2_equal_3
+006F EB               66             MOV A,R3
+0070 540F             67             ANL A,#00001111B
+0072 F51E             68             MOV 1EH,A
+0074 8011             69             JMP L1
+0076                  70     determine_R2_equal_3:
+0076 BA0307           71             CJNE R2,#3,determine_R2_equal_4
+0079 EB               72             MOV A,R3
+007A 540F             73             ANL A,#00001111B
+007C F51D             74             MOV 1DH,A
+007E 8007             75             JMP L1
+0080                  76     determine_R2_equal_4:
+0080 EB               77             MOV A,R3
+0081 540F             78             ANL A,#00001111B
+0083 F51C             79             MOV 1CH,A
+0085 8000             80             JMP L1
+0087                  81     L1:
+0087 C299             82             CLR TI
+0089 32               83             RETI
+                      84     
+                      85     
+                      86     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      87     ;display summation result
+                      88     ;input:1BH and 1AH
+                      89     ;output: result -> 19H and diplay
+008A                  90     display_summation_result:
+                      91         ;display an enter
+008A 3099FD           92             JNB TI,$
+008D C299             93             CLR TI
+008F 75990D           94             MOV SBUF,#0DH
+0092 3099FD           95             JNB TI,$
+0095 C299             96             CLR TI
+                      97             ;calculate summation
+0097 75F00A           98             MOV B,#10
+009A E51F             99             MOV A,1FH
+009C A4              100             MUL AB
+009D 251E            101             ADD A,1EH
+009F F51B            102             MOV 1BH,A
+00A1 75F00A          103             MOV B,#10
+00A4 E51D            104             MOV A,1DH
+00A6 A4              105             MUL AB
+00A7 251C            106             ADD A,1CH
+00A9 F51A            107             MOV 1AH,A
+00AB E51B            108             MOV A,1BH
+00AD 251A            109             ADD A,1AH
+00AF F519            110             MOV 19H,A
+                     111             ;display result
+00B1 759930          112             MOV SBUF,#30H
+00B4 3099FD          113             JNB TI,$
+00B7 C299            114             CLR TI
+00B9 75F064          115             MOV B,#100
+00BC 84              116             DIV AB
+00BD 9002C9          117             MOV DPTR,#display_number
+00C0 93              118             MOVC A,@A+DPTR
+00C1 F599            119             MOV SBUF,A
+00C3 3099FD          120             JNB TI,$
+00C6 C299            121             CLR TI
+00C8 E5F0            122             MOV A,B
+00CA 75F00A          123             MOV B,#10
+A51 MACRO ASSEMBLER  LAB4_BASIS                                                           03/31/2013 09:52:36 PAGE     3
+
+00CD 84              124             DIV AB
+00CE 93              125             MOVC A,@A+DPTR
+00CF F599            126             MOV SBUF,A
+00D1 3099FD          127             JNB TI,$
+00D4 C299            128             CLR TI
+00D6 E5F0            129             MOV A,B
+00D8 93              130             MOVC A,@A+DPTR
+00D9 F599            131             MOV SBUF,A
+00DB 3099FD          132             JNB TI,$
+00DE C299            133             CLR TI
+                     134             ;display an enter
+00E0 75990D          135             MOV SBUF,#0DH
+00E3 3099FD          136             JNB TI,$
+00E6 C299            137             CLR TI
+00E8 22              138             RET
+                     139     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                     140     
+                     141     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                     142     ;display the subtraction result
+                     143     ;input: 1BH and 1AH
+                     144     ;output: if negative, display "-" and absolute result in 19H
+                     145     ;        if positive, display result in 19H
+00E9                 146     display_subtraction_result:
+                     147             ;display an enter
+00E9 3099FD          148             JNB TI,$
+00EC C299            149             CLR TI
+00EE 75990D          150             MOV SBUF,#0DH
+00F1 3099FD          151             JNB TI,$
+00F4 C299            152             CLR TI
+                     153             ;calculate difference
+00F6 75F00A          154             MOV B,#10
+00F9 E51F            155             MOV A,1FH
+00FB A4              156             MUL AB
+00FC 251E            157             ADD A,1EH
+00FE F51B            158             MOV 1BH,A
+0100 75F00A          159             MOV B,#10
+0103 E51D            160             MOV A,1DH
+0105 A4              161             MUL AB
+0106 251C            162             ADD A,1CH
+0108 F51A            163             MOV 1AH,A
+010A C3              164             CLR C
+010B E51B            165             MOV A,1BH
+010D 951A            166             SUBB A,1AH
+                     167             ;if C=1,difference is negative -> display "-" and absolute result in 19H
+                     168             ;if C=0,difference is positive -> display result in 19H
+010F 4034            169             JC negative_difference
+0111 759930          170             MOV SBUF,#30H
+0114 3099FD          171             JNB TI,$
+0117 C299            172             CLR TI
+0119 759930          173             MOV SBUF,#30H
+011C 3099FD          174             JNB TI,$
+011F C299            175             CLR TI
+0121 F519            176             MOV 19H,A
+0123 75F00A          177             MOV B,#10
+0126 84              178             DIV AB
+0127 9002C9          179             MOV DPTR,#display_number
+012A 93              180             MOVC A,@A+DPTR
+012B F599            181             MOV SBUF,A
+012D 3099FD          182             JNB TI,$
+0130 C299            183             CLR TI
+0132 E5F0            184             MOV A,B
+0134 93              185             MOVC A,@A+DPTR
+0135 F599            186             MOV SBUF,A
+0137 3099FD          187             JNB TI,$
+013A C299            188             CLR TI
+                     189             ;display an enter
+A51 MACRO ASSEMBLER  LAB4_BASIS                                                           03/31/2013 09:52:36 PAGE     4
+
+013C 75990D          190             MOV SBUF,#0DH
+013F 3099FD          191             JNB TI,$
+0142 C299            192             CLR TI
+0144 22              193             RET
+0145                 194     negative_difference:
+0145 75992D          195             MOV SBUF,#2DH
+0148 3099FD          196             JNB TI,$
+014B C299            197             CLR TI
+014D 759930          198             MOV SBUF,#30H
+0150 3099FD          199             JNB TI,$
+0153 C299            200             CLR TI
+0155 759930          201             MOV SBUF,#30H
+0158 3099FD          202             JNB TI,$
+015B C299            203             CLR TI
+015D C3              204             CLR C
+015E E51A            205             MOV A,1AH
+0160 951B            206             SUBB A,1BH
+0162 F519            207             MOV 19H,A
+0164 75F00A          208             MOV B,#10
+0167 84              209             DIV AB
+0168 9002C9          210             MOV DPTR,#display_number
+016B 93              211             MOVC A,@A+DPTR
+016C F599            212             MOV SBUF,A
+016E 3099FD          213             JNB TI,$
+0171 C299            214             CLR TI
+0173 E5F0            215             MOV A,B
+0175 93              216             MOVC A,@A+DPTR
+0176 F599            217             MOV SBUF,A
+0178 3099FD          218             JNB TI,$
+017B C299            219             CLR TI
+                     220             ;display an enter
+017D 75990D          221             MOV SBUF,#0DH
+0180 3099FD          222             JNB TI,$
+0183 C299            223             CLR TI
+0185 22              224             RET
+                     225     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                     226     
+                     227     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                     228     ;display multiple result
+                     229     ;input: 1BH and 1AH
+                     230     ;output: 19H and 16H and display
+0186                 231     display_multiple_result:
+                     232             ;display an enter
+0186 3099FD          233             JNB TI,$
+0189 C299            234             CLR TI
+018B 75990D          235             MOV SBUF,#0DH
+018E 3099FD          236             JNB TI,$
+0191 C299            237             CLR TI
+                     238             ;calculate multiplication
+0193 75F00A          239             MOV B,#10
+0196 E51F            240             MOV A,1FH
+0198 A4              241             MUL AB
+0199 251E            242             ADD A,1EH
+019B F51B            243             MOV 1BH,A
+019D 75F00A          244             MOV B,#10
+01A0 E51D            245             MOV A,1DH
+01A2 A4              246             MUL AB
+01A3 251C            247             ADD A,1CH
+01A5 F51A            248             MOV 1AH,A
+01A7 E51B            249             MOV A,1BH
+01A9 851AF0          250             MOV B,1AH
+01AC A4              251             MUL AB
+01AD 85F019          252             MOV 19H,B
+01B0 F516            253             MOV 16H,A
+01B2 85F064          254             MOV 64H,B
+01B5 F565            255             MOV 65H,A
+A51 MACRO ASSEMBLER  LAB4_BASIS                                                           03/31/2013 09:52:36 PAGE     5
+
+01B7 756664          256             MOV 66H,#100
+01BA C3              257             CLR C
+01BB 515D            258             CALL division
+01BD E568            259             MOV A,68H
+01BF 75F00A          260             MOV B,#10
+01C2 84              261             DIV AB
+01C3 9002C9          262             MOV DPTR,#display_number
+01C6 93              263             MOVC A,@A+DPTR
+01C7 F599            264             MOV SBUF,A
+01C9 3099FD          265             JNB TI,$
+01CC C299            266             CLR TI
+01CE E5F0            267             MOV A,B
+01D0 93              268             MOVC A,@A+DPTR
+01D1 F599            269             MOV SBUF,A
+01D3 3099FD          270             JNB TI,$
+01D6 C299            271             CLR TI
+01D8 E569            272             MOV A,69H
+01DA 75F00A          273             MOV B,#10
+01DD 84              274             DIV AB
+01DE 93              275             MOVC A,@A+DPTR
+01DF F599            276             MOV SBUF,A
+01E1 3099FD          277             JNB TI,$
+01E4 C299            278             CLR TI
+01E6 E5F0            279             MOV A,B
+01E8 93              280             MOVC A,@A+DPTR
+01E9 F599            281             MOV SBUF,A
+01EB 3099FD          282             JNB TI,$
+01EE C299            283             CLR TI
+01F0 75990D          284             MOV SBUF,#0DH
+01F3 3099FD          285             JNB TI,$
+01F6 C299            286             CLR TI
+01F8 22              287             RET
+                     288     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                     289     
+                     290     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                     291     ;display the division result
+                     292     ;input: 1BH and 1AH
+                     293     ;output: quotient -> 19H and display
+                     294     ;        remainder -> 16H and display
+01F9                 295     display_division_result:
+                     296             ;display an enter
+01F9 3099FD          297             JNB TI,$
+01FC C299            298             CLR TI
+01FE 75990D          299             MOV SBUF,#0DH
+0201 3099FD          300             JNB TI,$
+0204 C299            301             CLR TI
+                     302             ;calculate division
+0206 75F00A          303             MOV B,#10
+0209 E51F            304             MOV A,1FH
+020B A4              305             MUL AB
+020C 251E            306             ADD A,1EH
+020E F51B            307             MOV 1BH,A
+0210 75F00A          308             MOV B,#10
+0213 E51D            309             MOV A,1DH
+0215 A4              310             MUL AB
+0216 251C            311             ADD A,1CH
+0218 F51A            312             MOV 1AH,A
+021A                 313     begin_calculate_division:
+021A E51B            314             MOV A,1BH
+021C 851AF0          315             MOV B,1AH
+021F 84              316             DIV AB
+0220 F519            317             MOV 19H,A
+0222 85F016          318             MOV 16H,B
+0225 9002C9          319             MOV DPTR,#display_number
+0228 7400            320             MOV A,#0
+022A 93              321             MOVC A,@A+DPTR
+A51 MACRO ASSEMBLER  LAB4_BASIS                                                           03/31/2013 09:52:36 PAGE     6
+
+022B F599            322             MOV SBUF,A
+022D 3099FD          323             JNB TI,$
+0230 C299            324             CLR TI
+0232 7400            325             MOV A,#0
+0234 93              326             MOVC A,@A+DPTR
+0235 F599            327             MOV SBUF,A
+0237 3099FD          328             JNB TI,$
+023A C299            329             CLR TI
+023C E519            330             MOV A,19H
+023E 75F00A          331             MOV B,#10
+0241 84              332             DIV AB
+0242 93              333             MOVC A,@A+DPTR
+0243 F599            334             MOV SBUF,A
+0245 3099FD          335             JNB TI,$
+0248 C299            336             CLR TI
+024A E5F0            337             MOV A,B
+024C 93              338             MOVC A,@A+DPTR
+024D F599            339             MOV SBUF,A
+024F 3099FD          340             JNB TI,$
+0252 C299            341             CLR TI
+0254 75990D          342             MOV SBUF,#0DH
+0257 3099FD          343             JNB TI,$
+025A C299            344             CLR TI
+025C 22              345             RET
+                     346     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                     347             
+                     348     ;;;;;;;;;;;;;;;;;;;;;;;;;
+                     349     ;Division for unsigned integer
+                     350     ;input: 16 bits: 64H 65H
+                     351     ;        8 bits: 66H
+                     352     ;output: quotient: 67H 68H
+                     353     ;        remainder: 69H
+                     354     ;Reg: A(has been protected), B(has been protected), C, 6AH
+025D                 355     division:
+025D C0E0            356             PUSH Acc;protect Acc
+025F C0F0            357             PUSH B;protect B
+0261 C3              358             CLR C;clear C
+                     359             ;clear result
+0262 756700          360             MOV 67H,#0
+0265 756800          361             MOV 68H,#0
+0268 756900          362             MOV 69H,#0
+026B 757000          363             MOV 70H,#0
+026E 756B00          364             MOV 6BH,#0
+                     365             ;division for high 8 bits
+0271 E566            366             MOV A,66H
+0273 F5F0            367             MOV B,A
+0275 E564            368             MOV A,64H
+0277 84              369             DIV AB
+                     370             ;quotient go to high quotient of final result
+0278 F567            371             MOV 67H,A
+                     372             ;remiander go to remainder of final result
+027A E5F0            373             MOV A,B
+027C F569            374             MOV 69H,A
+                     375             ;begin 8 times of loop
+027E 756A08          376             MOV 6AH,#8
+0281                 377     division_loop:
+                     378             ;rotate 65H left with C
+0281 E565            379             MOV A,65H
+0283 33              380             RLC A
+0284 F565            381             MOV 65H,A
+                     382             ;rotate 69H left with C
+0286 E569            383             MOV A,69H
+0288 33              384             RLC A
+0289 F569            385             MOV 69H,A;result -> rotate 69H and 65H left together with C
+                     386             ;69H - 66H
+028B C3              387             CLR C
+A51 MACRO ASSEMBLER  LAB4_BASIS                                                           03/31/2013 09:52:36 PAGE     7
+
+028C E569            388             MOV A,69H
+028E 9566            389             SUBB A,66H;if negative C=1, otherwise C=0. Result in A
+                     390             ;
+0290 400A            391             JC division_quotient_set_0;if C=1, go to division_quotient_set_0
+0292                 392     division_quotient_set_1:;if C=0, go down
+0292 F569            393             MOV 69H,A;sub result go to 69H
+                     394             ;most right bit of 68H set 1
+0294 D3              395             SETB C
+0295 E568            396             MOV A,68H
+0297 33              397             RLC A
+0298 F568            398             MOV 68H,A
+                     399             ;go to dicision
+029A 8006            400             JMP division_loop_dicision
+029C                 401     division_quotient_set_0:;if C=1, go down
+                     402             ;most right bit of 68H set 0
+029C C3              403             CLR C
+029D E568            404             MOV A,68H
+029F 33              405             RLC A
+02A0 F568            406             MOV 68H,A
+02A2                 407     division_loop_dicision:
+02A2 156A            408             DEC 6AH
+02A4 E56A            409             MOV A,6AH
+02A6 B400D8          410             CJNE A,#0,division_loop
+                     411             ;
+02A9 D0F0            412             POP B;get back B
+02AB D0E0            413             POP Acc;get back Acc
+02AD 22              414             RET
+                     415     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;         
+                     416     
+                     417             
+                     418     
+02AE                 419     MAIN:
+                     420             ;set serial port
+02AE C29F            421             CLR SM0
+02B0 D29E            422             SETB SM1
+02B2 C29D            423             CLR SM2
+02B4 D29C            424             SETB REN
+02B6 53877F          425             ANL PCON,#01111111B
+                     426             ;set bound rate
+02B9 758920          427             MOV TMOD,#00100000B
+02BC 758DF4          428             MOV TH1,#0F4H
+02BF D28E            429             SETB TR1
+                     430             ;set interrupt
+02C1 D2AC            431             SETB ES
+02C3 D2AF            432             SETB EA
+                     433             ;initial input digit number
+02C5 7A00            434             MOV R2,#0
+                     435             ;
+02C7 80FE            436             JMP $
+                     437     
+02C9                 438     display_number:
+02C9 30313233        439             DB 30H,31H,32H,33H,34H,35H,36H,37H,38H,39H
+02CD 34353637                
+02D1 3839                    
+                     440     
+                     441             END
+A51 MACRO ASSEMBLER  LAB4_BASIS                                                           03/31/2013 09:52:36 PAGE     8
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E                     T Y P E  V A L U E   ATTRIBUTES
+
+ACC. . . . . . . . . . . .  D ADDR   00E0H   A   
+B. . . . . . . . . . . . .  D ADDR   00F0H   A   
+BEGIN_CALCULATE_DIVISION .  C ADDR   021AH   A   
+BEGIN_DETERMINE_R2 . . . .  C ADDR   0030H   A   
+DETERMINE_NUMBER . . . . .  C ADDR   0051H   A   
+DETERMINE_R2_EQUAL_1 . . .  C ADDR   0062H   A   
+DETERMINE_R2_EQUAL_2 . . .  C ADDR   006CH   A   
+DETERMINE_R2_EQUAL_3 . . .  C ADDR   0076H   A   
+DETERMINE_R2_EQUAL_4 . . .  C ADDR   0080H   A   
+DETERMINE_R3_EQUAL_2AH . .  C ADDR   0043H   A   
+DETERMINE_R3_EQUAL_2BH . .  C ADDR   0035H   A   
+DETERMINE_R3_EQUAL_2DH . .  C ADDR   003CH   A   
+DETERMINE_R3_EQUAL_2FH . .  C ADDR   004AH   A   
+DISPLAY_DIVISION_RESULT. .  C ADDR   01F9H   A   
+DISPLAY_MULTIPLE_RESULT. .  C ADDR   0186H   A   
+DISPLAY_NUMBER . . . . . .  C ADDR   02C9H   A   
+DISPLAY_SUBTRACTION_RESULT  C ADDR   00E9H   A   
+DISPLAY_SUMMATION_RESULT .  C ADDR   008AH   A   
+DIVISION . . . . . . . . .  C ADDR   025DH   A   
+DIVISION_LOOP. . . . . . .  C ADDR   0281H   A   
+DIVISION_LOOP_DICISION . .  C ADDR   02A2H   A   
+DIVISION_QUOTIENT_SET_0. .  C ADDR   029CH   A   
+DIVISION_QUOTIENT_SET_1. .  C ADDR   0292H   A   
+EA . . . . . . . . . . . .  B ADDR   00A8H.7 A   
+ES . . . . . . . . . . . .  B ADDR   00A8H.4 A   
+L1 . . . . . . . . . . . .  C ADDR   0087H   A   
+MAIN . . . . . . . . . . .  C ADDR   02AEH   A   
+NEGATIVE_DIFFERENCE. . . .  C ADDR   0145H   A   
+PCON . . . . . . . . . . .  D ADDR   0087H   A   
+REN. . . . . . . . . . . .  B ADDR   0098H.4 A   
+RI . . . . . . . . . . . .  B ADDR   0098H.0 A   
+SBUF . . . . . . . . . . .  D ADDR   0099H   A   
+SM0. . . . . . . . . . . .  B ADDR   0098H.7 A   
+SM1. . . . . . . . . . . .  B ADDR   0098H.6 A   
+SM2. . . . . . . . . . . .  B ADDR   0098H.5 A   
+TH1. . . . . . . . . . . .  D ADDR   008DH   A   
+TI . . . . . . . . . . . .  B ADDR   0098H.1 A   
+TMOD . . . . . . . . . . .  D ADDR   0089H   A   
+TR1. . . . . . . . . . . .  B ADDR   0088H.6 A   
+UART . . . . . . . . . . .  C ADDR   0025H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

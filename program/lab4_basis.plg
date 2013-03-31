@@ -1,0 +1,25 @@
+<html>
+<body>
+<pre>
+<h1>µVision3 Build Log</h1>
+<h2>Project:</h2>
+C:\Documents and Settings\Administrator\My Documents\GitHub\microprocessors_lab4\program\lab4_basis.uv2
+Project File Date:  03/31/2013
+
+<h2>Output:</h2>
+Build target 'Target 1'
+assembling lab4_basis.asm...
+lab4_basis.asm(314): error A45: UNDEFINED SYMBOL (PASS-2)
+Target not created
+Build target 'Target 1'
+assembling lab4_basis.asm...
+linking...
+Program Size: data=8.0 xdata=0 code=797
+creating hex file from "lab4_basis"...
+"lab4_basis" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+assembling lab4_basis.asm...
+linking...
+Program Size: data=8.0 xdata=0 code=723
+creating hex file from "lab4_basis"...
+"lab4_basis" - 0 Error(s), 0 Warning(s).

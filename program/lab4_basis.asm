@@ -14,16 +14,6 @@ UART:
 	MOV SBUF,A
 	;store what you have typed in R3
 	MOV R3,A
-	;determine if input is a delete.if yes, R2-1 and finish. if no, continue.
-	CJNE A,#08H,begin_determine_R2
-	CJNE R2,#1,DEC_R2
-	DEC R2
-	JMP L1
-DEC_R2:
-	DEC R2
-	DEC R2
-	MOV P1,R2
-	JMP L1
 begin_determine_R2:
 	CJNE R2,#5,determine_number  ;if R2 is not equal to 5, the user should type a number
 	;if R2=5,clear R2 first
@@ -43,27 +33,27 @@ determine_R3_equal_2AH:
 	CALL display_multiple_result
 	JMP L1
 determine_R3_equal_2FH:
-	CJNE R3,#2FH,Call_operator_warning
+	CJNE R3,#2FH,L1
 	CALL display_division_result
 	JMP L1
 determine_number:
 	;determine if the character that the user has typed is a number.
-	;first determine if the high 4 bits	are 3H. if not, warning.
+	;first determine if the high 4 bits	are 3H. if not, go back.
 	;if yes, determine if the character is smaller than 3AH. 
 	;if yes, saving number.
-	;if no, warning.
+	;if no, go back.
 	MOV A,R3
 	RR A
 	RR A
 	RR A
 	RR A
 	ANL A,#00001111B
-	CJNE A,#3,Call_number_warning
+	CJNE A,#3,L1
 	CLR C
 	MOV A,R3
 	MOV R4,#3AH
 	SUBB A,R4
-	JNC Call_number_warning
+	JNC L1
 	;saving number
 determine_R2_equal_1:
 	CJNE R2,#1,determine_R2_equal_2
@@ -88,74 +78,10 @@ determine_R2_equal_4:
 	ANL A,#00001111B
 	MOV 1CH,A
 	JMP L1
-Call_number_warning:
-	CALL display_number_warning
-	MOV R2,#0
-	MOV R3,#0
-	JMP L1
-Call_operator_warning:
-	CALL display_operator_warning
-	MOV R3,#0
-	JMP L1
 L1:
 	CLR TI
 	RETI
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;display number warning function
-;This function is used to display a warning string -- "Type wrong. Please type a number."
-display_number_warning:
-	;make sure that all transimissions have been finished
-	JNB TI,$
-	CLR TI
-	;display an enter
-	MOV SBUF,#0DH
-	JNB TI,$
-	CLR TI
-	;prepare to diaplay the string
-	MOV DPTR,#Warning_number
-	MOV R1,#0
-	;begin to display the string
-number_warning_loop:
-	MOV A,R1
-	MOVC A,@A+DPTR
-	MOV SBUF,A
-	JNB TI,$
-	CLR TI
-	CJNE A,#0DH,number_warning_continue
-	RET
-number_warning_continue:
-	INC R1
-	JMP number_warning_loop
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;display operator warning function
-;This function is used to display a warning string -- "Type wrong. Please type an operator."
-display_operator_warning:
-	;make sure that all transimissions have been finished
-	JNB TI,$
-	CLR TI
-	;display an enter
-	MOV SBUF,#0DH
-	JNB TI,$
-	CLR TI
-	;prepare to diaplay the string
-	MOV DPTR,#Warning_operator
-	MOV R1,#0
-	;begin to display the string
-operator_warning_loop:
-	MOV A,R1
-	MOVC A,@A+DPTR
-	MOV SBUF,A
-	JNB TI,$
-	CLR TI
-	CJNE A,#0DH,operator_warning_continue
-	RET
-operator_warning_continue:
-	INC R1
-	JMP operator_warning_loop
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;display summation result
@@ -384,21 +310,6 @@ display_division_result:
 	MUL AB
 	ADD A,1CH
 	MOV 1AH,A
-	JNZ begin_calculate_division
-	MOV DPTR,#display_infinity
-	MOV R1,#0
-	;begin to display the string "Infinity"
-number_infinity_loop:
-	MOV A,R1
-	MOVC A,@A+DPTR
-	MOV SBUF,A
-	JNB TI,$
-	CLR TI
-	CJNE A,#0DH,number_infinity_continue
-	RET
-number_infinity_continue:
-	INC R1
-	JMP number_infinity_loop
 begin_calculate_division:
 	MOV A,1BH
 	MOV B,1AH
@@ -428,39 +339,6 @@ begin_calculate_division:
 	MOV SBUF,A
 	JNB TI,$
 	CLR TI
-	MOV A,16H
-	JZ display_division_finish
-	;display string "......"
-	MOV SBUF,#2EH
-	JNB TI,$
-	CLR TI
-	MOV SBUF,#2EH
-	JNB TI,$
-	CLR TI
-	MOV SBUF,#2EH
-	JNB TI,$
-	CLR TI
-	MOV SBUF,#2EH
-	JNB TI,$
-	CLR TI
-	MOV SBUF,#2EH
-	JNB TI,$
-	CLR TI
-	MOV SBUF,#2EH
-	JNB TI,$
-	CLR TI
-	MOV B,#10
-	DIV AB
-	MOVC A,@A+DPTR
-	MOV SBUF,A
-	JNB TI,$
-	CLR TI
-	MOV A,B
-	MOVC A,@A+DPTR
-	MOV SBUF,A
-	JNB TI,$
-	CLR TI
-display_division_finish:
 	MOV SBUF,#0DH
 	JNB TI,$
 	CLR TI
@@ -557,24 +435,7 @@ MAIN:
 	;
 	JMP $
 
-Warning_number:
-	DB 54H, 79H, 70H, 65H, 20H, 77H, 72H, 6FH
-	DB 6EH, 67H, 2EH, 20H, 50H, 6CH, 65H, 61H
-	DB 73H, 65H, 20H, 74H, 79H, 70H, 65H, 20H
-	DB 61H, 20H, 6EH, 75H, 6DH, 62H, 65H, 72H
-	DB 2EH, 0DH
-
-Warning_operator:
-	DB 54H, 79H, 70H, 65H, 20H, 77H, 72H, 6FH
-	DB 6EH, 67H, 2EH, 20H, 50H, 6CH, 65H, 61H
-	DB 73H, 65H, 20H, 74H, 79H, 70H, 65H, 20H
-	DB 61H, 6EH, 20H, 6FH, 70H, 65H, 72H, 61H 
-	DB 74H, 6FH, 72H, 2EH, 0DH
-
 display_number:
 	DB 30H,31H,32H,33H,34H,35H,36H,37H,38H,39H
-
-display_infinity:
-	DB 49H,6EH,66H,69H,6EH,69H,74H,79H,0DH
 
 	END
